@@ -62,6 +62,12 @@ def compile_md(name):
     in_filename = get_in_filename(name)
     if needs_update(name):
         #file is not cached, recompile
+        #create directory if needed
+        out_filename_dir = os.path.dirname(out_filename)
+        if not os.path.exists(out_filename_dir):
+            os.makedirs(out_filename_dir)
+
+        #compile
         subprocess.call(['pandoc', '-H', headerfile, '-s', '-m', in_filename, '-o', out_filename])
 
 def create_header(autorefresh):
