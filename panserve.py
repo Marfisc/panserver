@@ -78,7 +78,7 @@ def create_header(autorefresh):
     window.setInterval(function() {
         var xhr = new XMLHttpRequest();
         var href = window.location.href;
-        var re = /view\/(.*)$/;
+        var re = /view\/(.+?)(.md)?$/;
         var name = re.exec(href)[1];
         xhr.open('GET', '/refresh/' + name);
         xhr.onload = function() {
