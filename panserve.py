@@ -88,7 +88,7 @@ def route_index():
         for path in sorted(glob.iglob(os.path.join(dirname, '*'))):
             if not os.path.isdir(path): continue
             subdirtext = dir_entry(path)
-            dirtext += '<li class="dir-entry">' + path + subdirtext + '</li>'
+            dirtext += '<li class="dir-entry">' + os.path.basename(path) + subdirtext + '</li>'
 
         return dirtext + '</ul>'
 
