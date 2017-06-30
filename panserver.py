@@ -73,7 +73,7 @@ def route_index():
     text += "<html><head>"
     text += '<link rel="stylesheet" type="text/css" href="/static/style.css">'
     text += "</head><body>"
-    text += '<h1>Panserve</h1>'
+    text += '<h1>Panserver</h1>'
     text += 'Serving Markdown documents rendered using <a href="http://pandoc.org/">pandoc</a>. By <a href="http://marcelfischer.eu/">Marcel Fischer</a>'
 
     def dir_entry(dirname):
