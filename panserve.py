@@ -48,7 +48,30 @@ def route_refresh(name):
 
 @route('/')
 def route_index():
-    return "<h1>PanServe</h1><h2>Serving markdown since yesterday</h2>"
+    import glob
+    text = '<h1>Panserve</h1>'
+
+    text += """<style> ul li{ list-style-type: disc; }</style>"""
+
+    def dir_entry(dirname):
+        dirtext = '<ul>'
+        for path in sorted(glob.iglob(os.path.join(dirname, '*.md'))):
+            if os.path.isdir(path): continue
+            d = {}
+            d['path'] = path[:-3]
+            d['name'] = os.path.basename(path)
+            dirtext += '<li><a href="/view/{path}">{name}</a></li>'.format(**d)
+
+        for path in sorted(glob.iglob(os.path.join(dirname, '*'))):
+            if not os.path.isdir(path): continue
+            subdirtext = dir_entry(path)
+            dirtext += '<li>' + path + subdirtext + '</li>'
+
+        return dirtext + '</ul>'
+
+    text += dir_entry('')
+
+    return text
 
 def needs_update(name):
     out_filename = get_out_filename(name)
