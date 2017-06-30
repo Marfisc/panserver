@@ -46,30 +46,56 @@ def route_refresh(name):
         return "True"
     return "False"
 
+@route('/static/style.css')
+def route_static_css():
+    bottle.response.content_type = 'text/css; charset=UTF8'
+    return """
+body { width: 90%;  margin: auto; font-size: 1.1em; }
+.LaTeX { font-size: 1.2em; }
+div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
+ul.file-listing a { text-decoration: none; }
+ul li{ list-style-type: disc; }
+ul li.dir-entry {
+    list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAApElEQVQ4je3UsQqBYRTG8Z9SMpjsrsAdYMI1WNyDhdnKriiD1U3YXML3SWE3uAgDX+lF8iqlPPX01qnn/55OncMvqYMUSeA1KjHAFKUH9S7GMcDkSb2Jk/vOQ2/QhzKq2F/fd52/ftzCBKZYYRnhA2ohcIb6m+PJdJv9A//AT4GND4BZtp0BBxgiFwG8zY7QgyIWLsv96gCE3uKIHeYoRDT1ZZ0BsR1JIXdX8A8AAAAASUVORK5CYII=');
+}
+ul li.file-entry{
+    list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAA00lEQVQ4jcXUQUqCURSG4Qc0bKaUiKsIhEbazMBhOHILES3EUYIGtpBwlDODhhFCTqQdtIYGf5H+eOVeFP4P3ul7L4fzHbZziQme9jDEqYhU8IkervbwjecYaRPziIeXuIuRNvESKRQjjRV+4f6XN8xQPkQ4wO0Ga9QPEeazKER4gi6uA3T9zy1KeCZb8McAY1RThCkpRtjAh2yJd/EuG0txPzy68BxT4RM2RS1FWEZH+IS1UUoRpuQ1JPw7sDfCDcnTx0rWrJ1pYSTckDwPuNgU/ADJ7ku1B60bXwAAAABJRU5ErkJggg==');
+}
+
+    """
+
 @route('/')
 def route_index():
     import glob
-    text = '<h1>Panserve</h1>'
 
-    text += """<style> ul li{ list-style-type: disc; }</style>"""
+    text = ""
+
+    text += "<html><head>"
+    text += '<link rel="stylesheet" type="text/css" href="/static/style.css">'
+    text += "</head><body>"
+    text += '<h1>Panserve</h1>'
+    text += 'Serving Markdown documents rendered using <a href="http://pandoc.org/">pandoc</a>. By <a href="http://marcelfischer.eu/">Marcel Fischer</a>'
 
     def dir_entry(dirname):
-        dirtext = '<ul>'
+        dirtext = '<ul class="file-listing">'
         for path in sorted(glob.iglob(os.path.join(dirname, '*.md'))):
             if os.path.isdir(path): continue
             d = {}
             d['path'] = path[:-3]
             d['name'] = os.path.basename(path)
-            dirtext += '<li><a href="/view/{path}">{name}</a></li>'.format(**d)
+            dirtext += '<li class="file-entry"><a href="/view/{path}">{name}</a></li>'.format(**d)
 
         for path in sorted(glob.iglob(os.path.join(dirname, '*'))):
             if not os.path.isdir(path): continue
             subdirtext = dir_entry(path)
-            dirtext += '<li>' + path + subdirtext + '</li>'
+            dirtext += '<li class="dir-entry">' + path + subdirtext + '</li>'
 
         return dirtext + '</ul>'
 
+    text += "<h3>Directory contents</h3>"
     text += dir_entry('')
+
+    text += '</body></html>'
 
     return text
 
@@ -94,13 +120,7 @@ def compile_md(name):
         subprocess.call(['pandoc', '-H', headerfile, '-s', '-m', in_filename, '-o', out_filename])
 
 def create_header(autorefresh):
-    headertext = """
-    <style>
-    body { width: 90%;  margin: auto; font-size: 1.1em; }
-    .LaTeX { font-size: 1.2em; }
-    div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
-    </style>
-"""
+    headertext = '<link rel="stylesheet" type="text/css" href="/static/style.css"/>'
     if autorefresh:
         headertext += """
     <script>
@@ -149,3 +169,4 @@ if __name__ == '__main__':
 
     bottle.run(host='localhost', port=config.port)
     shutil.rmtree(outdir)
+
