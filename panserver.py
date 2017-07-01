@@ -1,6 +1,5 @@
 from bottle import route
 import bottle
-import webbrowser
 import tempfile
 import os
 import shutil
@@ -149,23 +148,28 @@ def create_header(autorefresh):
         f.write(headertext)
 
 if __name__ == '__main__':
+    import webbrowser
     import argparse
 
     parser = argparse.ArgumentParser(description='Run a local markdown compiling server')
 
     parser.add_argument('-a', action='store_const', const=True)
     parser.add_argument('-p', '--port', type=int, default=8080)
-    parser.add_argument('file', nargs='?')
+    parser.add_argument('-b', action='store_const', const=True)
+    parser.add_argument('path', nargs='?')
     config = parser.parse_args()
 
     create_header(config.a)
 
-    if config.file != None:
-        f = config.file
-        if f.endswith('.md'):
-            f = f[:-3]
+    if config.path != None:
+        if os.path.isdir(config.path):
+            os.chdir(config.path)
+            indir = os.path.abspath('.')
+        else:
+            raise Exception('Unknown path argument')
 
-        webbrowser.get().open('http://localhost:{}/view/{}'.format(config.port, config.file))
+    if config.b:
+        webbrowser.get().open('http://localhost:{}/'.format(config.port))
 
     bottle.run(host='localhost', port=config.port)
     shutil.rmtree(outdir)
