@@ -52,7 +52,7 @@ When you start Panserver it will act as an HTTP server (on the given port).
 On the same machine it will be available in a web browser as `http://localhost:8080/` (substitute `8080` with correct port if you specified it explicitely).
 
 **Beware** that access is not restricted to the same machine!
-All files (not only Markdown documents) in the document directory and all its subdirectories will be available through the server to whomever has access to the port on that machine! This in necessary to allow you to link images (or scripts and stylesheets etc) in your documents. 
+All files (not only Markdown documents) in the document directory and all its subdirectories will be available through the server to whomever has access to the port on that machine!
 
 ### Index page
 
