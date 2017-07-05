@@ -76,7 +76,9 @@ def route_index():
     text += 'Serving Markdown documents rendered using <a href="http://pandoc.org/">pandoc</a>. By <a href="http://marcelfischer.eu/">Marcel Fischer</a>'
 
     def dir_entry(dirname):
-        dirtext = '<ul class="file-listing">'
+        #collect markdown files recursively into a list
+        #return '' if no markdown file is in the directory
+        dirtext = ''
         for path in sorted(glob.iglob(os.path.join(dirname, '*.md'))):
             if os.path.isdir(path): continue
             d = {}
@@ -87,9 +89,13 @@ def route_index():
         for path in sorted(glob.iglob(os.path.join(dirname, '*'))):
             if not os.path.isdir(path): continue
             subdirtext = dir_entry(path)
-            dirtext += '<li class="dir-entry">' + os.path.basename(path) + subdirtext + '</li>'
+            #ignore directories with empty listings
+            if subdirtext != '':
+                dirtext += '<li class="dir-entry">' + os.path.basename(path) + subdirtext + '</li>'
 
-        return dirtext + '</ul>'
+        if dirtext != '':
+            dirtext = '<ul class="file-listing">' + dirtext + '</ul>'
+        return dirtext
 
     text += "<h3>Directory contents</h3>"
     text += dir_entry('')
