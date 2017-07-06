@@ -53,7 +53,8 @@ body { width: 90%;  margin: auto; font-size: 1.1em; }
 .LaTeX { font-size: 1.2em; }
 div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
 ul.file-listing a { text-decoration: none; }
-ul li{ list-style-type: disc; }
+ul.file-listing ul.file-listing { padding-left: 1.5em; }
+ul li{ list-style-type: disc; padding-top: 0.25em; }
 ul li.dir-entry {
     list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAApElEQVQ4je3UsQqBYRTG8Z9SMpjsrsAdYMI1WNyDhdnKriiD1U3YXML3SWE3uAgDX+lF8iqlPPX01qnn/55OncMvqYMUSeA1KjHAFKUH9S7GMcDkSb2Jk/vOQ2/QhzKq2F/fd52/ftzCBKZYYRnhA2ohcIb6m+PJdJv9A//AT4GND4BZtp0BBxgiFwG8zY7QgyIWLsv96gCE3uKIHeYoRDT1ZZ0BsR1JIXdX8A8AAAAASUVORK5CYII=');
 }
