@@ -52,6 +52,8 @@ def route_static_css():
 body { width: 90%;  margin: auto; font-size: 1.1em; }
 .LaTeX { font-size: 1.2em; }
 div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
+li p:first-child { margin-top: 0em; }
+li p:last-child { margin-bottom: 0em; }
 ul.file-listing a { text-decoration: none; }
 ul.file-listing ul.file-listing { padding-left: 1.5em; }
 ul li{ list-style-type: disc; padding-top: 0.25em; }
