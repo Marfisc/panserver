@@ -13,9 +13,19 @@ This is a [web link](http://example.org/). Also documents can link to [other doc
 
 ## Advanced formatting
 
+* This is
+* a simple
+* list
+
+And also
+
 * This
 
 * is a
+
+    * sublist
+
+    * text
 
 * list
 with

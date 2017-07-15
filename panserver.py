@@ -5,11 +5,6 @@ import os
 import shutil
 import subprocess
 
-outdir = tempfile.mkdtemp()
-indir = os.path.abspath('.')
-
-headerfile = os.path.join(outdir, "header.html")
-
 def get_out_filename(name):
     f =  os.path.join(outdir, get_out_filename_rel(name))
     if not os.path.abspath(f).startswith(os.path.abspath(outdir)):
@@ -45,26 +40,6 @@ def route_refresh(name):
         return "True"
     return "False"
 
-@route('/static/style.css')
-def route_static_css():
-    bottle.response.content_type = 'text/css; charset=UTF8'
-    return """
-body { width: 90%;  margin: auto; font-size: 1.1em; }
-.LaTeX { font-size: 1.2em; }
-div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
-li p:first-child { margin-top: 0em; }
-li p:last-child { margin-bottom: 0em; }
-ul.file-listing a { text-decoration: none; }
-ul.file-listing ul.file-listing { padding-left: 1.5em; }
-ul li{ list-style-type: disc; padding-top: 0.25em; }
-ul li.dir-entry {
-    list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAApElEQVQ4je3UsQqBYRTG8Z9SMpjsrsAdYMI1WNyDhdnKriiD1U3YXML3SWE3uAgDX+lF8iqlPPX01qnn/55OncMvqYMUSeA1KjHAFKUH9S7GMcDkSb2Jk/vOQ2/QhzKq2F/fd52/ftzCBKZYYRnhA2ohcIb6m+PJdJv9A//AT4GND4BZtp0BBxgiFwG8zY7QgyIWLsv96gCE3uKIHeYoRDT1ZZ0BsR1JIXdX8A8AAAAASUVORK5CYII=');
-}
-ul li.file-entry{
-    list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAA00lEQVQ4jcXUQUqCURSG4Qc0bKaUiKsIhEbazMBhOHILES3EUYIGtpBwlDODhhFCTqQdtIYGf5H+eOVeFP4P3ul7L4fzHbZziQme9jDEqYhU8IkervbwjecYaRPziIeXuIuRNvESKRQjjRV+4f6XN8xQPkQ4wO0Ga9QPEeazKER4gi6uA3T9zy1KeCZb8McAY1RThCkpRtjAh2yJd/EuG0txPzy68BxT4RM2RS1FWEZH+IS1UUoRpuQ1JPw7sDfCDcnTx0rWrJ1pYSTckDwPuNgU/ADJ7ku1B60bXwAAAABJRU5ErkJggg==');
-}
-
-    """
 
 @route('/')
 def route_index():
@@ -73,7 +48,7 @@ def route_index():
     text = ""
 
     text += "<html><head>"
-    text += '<link rel="stylesheet" type="text/css" href="/static/style.css">'
+    text += '<style type="text/css">{}</style>'.format(style_basic + style_index)
     text += "</head><body>"
     text += '<h1>Panserver</h1>'
     text += 'Serving Markdown documents rendered using <a href="http://pandoc.org/">pandoc</a>. By <a href="http://marcelfischer.eu/">Marcel Fischer</a>'
@@ -128,7 +103,10 @@ def compile_md(name):
         subprocess.call(['pandoc', '-H', headerfile, '-s', '-m', in_filename, '-o', out_filename])
 
 def create_header(autorefresh):
-    headertext = '<link rel="stylesheet" type="text/css" href="/static/style.css"/>'
+    headertext = ""
+
+    headertext += """<style type="text/css">{}</style>""".format(style_basic)
+
     if autorefresh:
         headertext += """
     <script>
@@ -155,6 +133,39 @@ def create_header(autorefresh):
 
     with open(headerfile, 'w') as f:
         f.write(headertext)
+
+#global vars
+tempdir = tempfile.mkdtemp()
+outdir = os.path.join(tempdir, "out")
+indir = os.path.abspath('.')
+
+headerfile = os.path.join(tempdir, "header.html")
+
+if not os.path.exists(outdir):
+    os.makedirs(outdir)
+
+
+style_basic = """
+        body { width: 90%;  margin: auto; font-size: 1.1em; }
+        .LaTeX { font-size: 1.2em; }
+        div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
+        ul li{ list-style-type: disc; }
+        li p { margin-top: 0em; margin-bottom: 0.5em; }
+        /*
+        li p:first-child { margin-top: 0em; }
+        li p:last-child { margin-bottom: 0em; }
+        */
+"""
+style_index = """
+        ul.file-listing a { text-decoration: none; }
+        ul.file-listing ul.file-listing { padding-left: 1.5em; }
+        ul li.dir-entry {
+            list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAApElEQVQ4je3UsQqBYRTG8Z9SMpjsrsAdYMI1WNyDhdnKriiD1U3YXML3SWE3uAgDX+lF8iqlPPX01qnn/55OncMvqYMUSeA1KjHAFKUH9S7GMcDkSb2Jk/vOQ2/QhzKq2F/fd52/ftzCBKZYYRnhA2ohcIb6m+PJdJv9A//AT4GND4BZtp0BBxgiFwG8zY7QgyIWLsv96gCE3uKIHeYoRDT1ZZ0BsR1JIXdX8A8AAAAASUVORK5CYII=');
+        }
+        ul li.file-entry{
+            list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAA00lEQVQ4jcXUQUqCURSG4Qc0bKaUiKsIhEbazMBhOHILES3EUYIGtpBwlDODhhFCTqQdtIYGf5H+eOVeFP4P3ul7L4fzHbZziQme9jDEqYhU8IkervbwjecYaRPziIeXuIuRNvESKRQjjRV+4f6XN8xQPkQ4wO0Ga9QPEeazKER4gi6uA3T9zy1KeCZb8McAY1RThCkpRtjAh2yJd/EuG0txPzy68BxT4RM2RS1FWEZH+IS1UUoRpuQ1JPw7sDfCDcnTx0rWrJ1pYSTckDwPuNgU/ADJ7ku1B60bXwAAAABJRU5ErkJggg==');
+        }
+"""
 
 if __name__ == '__main__':
     import webbrowser
