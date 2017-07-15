@@ -100,12 +100,12 @@ def compile_md(name):
             os.makedirs(out_filename_dir)
 
         #compile
-        subprocess.call(['pandoc', '-H', headerfile, '-s', '-m', in_filename, '-o', out_filename])
+        subprocess.call(['pandoc', '-H', headerfile, '-B', beforefile, '-s', '-m', in_filename, '-o', out_filename])
 
 def create_header(autorefresh):
     headertext = ""
 
-    headertext += """<style type="text/css">{}</style>""".format(style_basic)
+    headertext += """<style type="text/css">{}</style>""".format(style_basic + style_document_add)
 
     if autorefresh:
         headertext += """
@@ -134,12 +134,21 @@ def create_header(autorefresh):
     with open(headerfile, 'w') as f:
         f.write(headertext)
 
+def create_beforefile():
+    beforetext = ""
+    beforetext = """
+    <span class="topmenu">Panserver: <a href="/">Index</a></span>
+    """
+    with open(beforefile, 'w') as f:
+        f.write(beforetext)
+
 #global vars
 tempdir = tempfile.mkdtemp()
 outdir = os.path.join(tempdir, "out")
 indir = os.path.abspath('.')
 
 headerfile = os.path.join(tempdir, "header.html")
+beforefile = os.path.join(tempdir, "before.html")
 
 if not os.path.exists(outdir):
     os.makedirs(outdir)
@@ -151,10 +160,11 @@ style_basic = """
         div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
         ul li{ list-style-type: disc; }
         li p { margin-top: 0em; margin-bottom: 0.5em; }
-        /*
-        li p:first-child { margin-top: 0em; }
-        li p:last-child { margin-bottom: 0em; }
-        */
+"""
+
+style_document_add = """
+        .topmenu { font-size: 1em; color: lightgrey; }
+        .topmenu a { color: lightgrey; }
 """
 style_index = """
         ul.file-listing a { text-decoration: none; }
@@ -180,6 +190,7 @@ if __name__ == '__main__':
     config = parser.parse_args()
 
     create_header(config.a)
+    create_beforefile()
 
     if config.path != None:
         if os.path.isdir(config.path):
