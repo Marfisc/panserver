@@ -5,14 +5,23 @@ import os
 import shutil
 import subprocess
 
-def get_out_filename(name):
-    f =  os.path.join(outdir, get_out_filename_rel(name))
+def is_known_format(fmt):
+    if fmt == 'std': return True
+    if fmt == 'export': return True
+    if fmt == 'simple': return True
+    if fmt == 'inline': return True
+    return False
+
+def get_out_filename(name, fmt = 'std'):
+    if not is_known_format(fmt): raise Exception('Unknown format')
+    f =  os.path.join(outdir, get_out_filename_rel(name, fmt))
     if not os.path.abspath(f).startswith(os.path.abspath(outdir)):
         raise Exception('Path out problem', os.path.abspath(f), os.path.abspath(outdir))
     return f
 
-def get_out_filename_rel(name):
-    return "{}.html".format(name)
+def get_out_filename_rel(name, fmt = 'std'):
+    if not is_known_format(fmt): raise Exception('Unknown format')
+    return "{}.{}.html".format(name, fmt)
 
 def get_in_filename(name, hasExtesion=False):
     f = os.path.join(indir, get_in_filename_rel(name, hasExtesion))
@@ -29,8 +38,12 @@ def get_in_filename_rel(name, hasExtesion):
 def route_view(name, end):
     md_file = get_in_filename(name)
     if end != "" or os.path.exists(md_file):
-        compile_md(name)
-        return bottle.static_file(get_out_filename_rel(name), outdir)
+        fmt = bottle.request.query.fmt or "std"
+        if not is_known_format(fmt): return 'Unknown format'
+
+        compile_md(name, fmt)
+        return bottle.static_file(get_out_filename_rel(name, fmt), outdir)
+
     else:
         return bottle.static_file(get_in_filename_rel(name, True), indir)
 
@@ -82,25 +95,43 @@ def route_index():
 
     return text
 
-def needs_update(name):
-    out_filename = get_out_filename(name)
+def needs_update(name, fmt = 'std'):
+    out_filename = get_out_filename(name, fmt)
     in_filename = get_in_filename(name)
     if not os.path.exists(in_filename): return False
     if not os.path.exists(out_filename): return True
     return os.path.getmtime(out_filename) < os.path.getmtime(in_filename)
 
-def compile_md(name):
-    out_filename = get_out_filename(name)
+def compile_md(name, fmt):
+    out_filename = get_out_filename(name, fmt)
     in_filename = get_in_filename(name)
-    if needs_update(name):
+    if needs_update(name, fmt):
         #file is not cached, recompile
         #create directory if needed
         out_filename_dir = os.path.dirname(out_filename)
         if not os.path.exists(out_filename_dir):
             os.makedirs(out_filename_dir)
 
+        #combine action based on format
+        action = ['pandoc']
+
+        if fmt == 'std':
+            action += ['-H', headerfile, '-B', beforefile,]
+
+        if fmt == 'export':
+            action += ['-H', headerfile_export,]
+
+        if fmt != 'inline':
+            action += ['-s']
+
+        action += ['-m']
+
+        #main parameters
+        action += [in_filename, '-o', out_filename]
+
         #compile
-        subprocess.call(['pandoc', '-H', headerfile, '-B', beforefile, '-s', '-m', in_filename, '-o', out_filename])
+        print(action)
+        subprocess.call(action)
 
 def create_header(autorefresh):
     headertext = ""
@@ -134,10 +165,21 @@ def create_header(autorefresh):
     with open(headerfile, 'w') as f:
         f.write(headertext)
 
+def create_header_export():
+    text = """<style type="text/css">{}</style>""".format(style_basic)
+
+    with open(headerfile_export, 'w') as f:
+        f.write(text)
+
 def create_beforefile():
     beforetext = ""
     beforetext = """
-    <span class="topmenu">Panserver: <a href="/">Index</a></span>
+    <span class="topmenu">Panserver: <a href="/">Index</a>
+    Format:
+    <a href="?fmt=export">Export</a>
+    <a href="?fmt=simple">Simple</a>
+    <a href="?fmt=inline">Inline</a>
+    </span>
     """
     with open(beforefile, 'w') as f:
         f.write(beforetext)
@@ -148,6 +190,7 @@ outdir = os.path.join(tempdir, "out")
 indir = os.path.abspath('.')
 
 headerfile = os.path.join(tempdir, "header.html")
+headerfile_export = os.path.join(tempdir, "header.export.html")
 beforefile = os.path.join(tempdir, "before.html")
 
 if not os.path.exists(outdir):
@@ -190,6 +233,7 @@ if __name__ == '__main__':
     config = parser.parse_args()
 
     create_header(config.a)
+    create_header_export()
     create_beforefile()
 
     if config.path != None:
