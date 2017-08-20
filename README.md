@@ -32,11 +32,11 @@ Hit `Ctrl-c` to stop the server.
 ### Path
 
 A path to the to the document directory. If no path is specified the current working directory is used.
-All files (not only Markdown documents) in the directory and all its subdirectories will be available through the server! This in necessary to allow you to link images (or scripts and stylesheets etc) in your documents. 
+All files (not only Markdown documents) in the directory and all its subdirectories will be available through the server! This in necessary to allow you to link images (or scripts and stylesheets etc) in your documents.
 
 ### Auto-refresh: `-a`
 
-Specifying this option makes Panserver include a small script into the generated HTML. The script will constantly poll the server and refresh the page when the correspondig Markdown source file has been updated.
+Specifying this option makes Panserver include a small script into the generated HTML. The script will constantly poll the server and refresh the page when the corresponding Markdown source file has been updated.
 
 ### Open browser: `-b`
 
@@ -49,7 +49,7 @@ You can set the port Panserver should listen to with this option. The default is
 ## Behaviour
 
 When you start Panserver it will act as an HTTP server (on the given port).
-On the same machine it will be available in a web browser as `http://localhost:8080/` (substitute `8080` with correct port if you specified it explicitely).
+On the same machine it will be available in a web browser as `http://localhost:8080/` (substitute `8080` with correct port if you specified it explicitly).
 
 **Beware** that access is not restricted to the same machine!
 All files (not only Markdown documents) in the document directory and all its subdirectories will be available through the server to whomever has access to the port on that machine!
@@ -61,6 +61,16 @@ The index page is available at address `/` (that is `http://localhost:8080/` nor
 ### Markdown views
 
 The address `/view/<some_path>`, where `<some_path>` or `<some_path>.md` is a path relative to the document directory to a Markdown file, is a Markdown view page. It will display the output of `pandoc` for the given Markdown file plus some minimal styling.
+
+You can view the markdown files in different formats.
+These can accessed through the menu at the top of the standard view of
+markdown documents. The alternative views are:
+
+* *export*: Ideal for saving the output. Like the standard view but without
+the menu and auto-refresh script.
+* *simple*: Remove the default styling and the menu.
+* *inline*: Remove the default styling, the menu, and the HTML skeleton
+around the output. This is for inclusion into existing HTML documents.
 
 ### Other files
 
