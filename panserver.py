@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from bottle import route
 import bottle
 import tempfile
