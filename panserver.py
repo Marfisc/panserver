@@ -36,7 +36,7 @@ def get_in_filename_rel(name, hasExtesion):
         return "{}.md".format(name)
     return name
 
-@route('/view/<name:re:(\w|\.|/)+?><end:re:(.md)?>')
+@route('/view/<name:path><end:re:(.md)?>')
 def route_view(name, end):
     md_file = get_in_filename(name)
     if end != "" or os.path.exists(md_file):
@@ -49,7 +49,7 @@ def route_view(name, end):
     else:
         return bottle.static_file(get_in_filename_rel(name, True), indir)
 
-@route('/refresh/<name:re:(\w|\.|/)+>')
+@route('/refresh/<name:path>')
 def route_refresh(name):
     if needs_update(name):
         return "True"
