@@ -88,6 +88,8 @@ def route_index():
 
         if dirtext != '':
             dirtext = '<ul class="file-listing">' + dirtext + '</ul>'
+        else:
+            dirtext = '<i> (no documents)</i>'
         return dirtext
 
     text += "<h3>Directory contents</h3>"
@@ -138,7 +140,7 @@ def compile_md(name, fmt):
 def create_header(autorefresh):
     headertext = ""
 
-    headertext += """<style type="text/css">{}</style>""".format(style_basic + style_document_add)
+    headertext += """{}<style type="text/css">{}</style>""".format(meta_no_mobilescale, style_basic + style_document_add)
 
     if autorefresh:
         headertext += """
@@ -168,7 +170,7 @@ def create_header(autorefresh):
         f.write(headertext)
 
 def create_header_export():
-    text = """<style type="text/css">{}</style>""".format(style_basic)
+    text = """{}<style type="text/css">{}</style>""".format(meta_no_mobilescale, style_basic)
 
     with open(headerfile_export, 'w') as f:
         f.write(text)
@@ -198,13 +200,18 @@ beforefile = os.path.join(tempdir, "before.html")
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
+meta_no_mobilescale = """<meta name="viewport" content="width=device-width, initial-scale=1.0">"""
+
 
 style_basic = """
-        body { width: 90%;  margin: auto; font-size: 1.1em; }
+        body {
+            width: 92%; max-width: 45em;  margin: auto;
+            font-size: 1.2rem; line-height: 1.5}
+        code { font-family: "DejaVu Sans Mono", Consolas, monospace; }
         .LaTeX { font-size: 1.2em; }
         div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
-        ul li{ list-style-type: disc; }
-        li p { margin-top: 0em; margin-bottom: 0.5em; }
+        ul li { list-style-type: disc; }
+        li p { margin: 0.5em 0; }
 """
 
 style_document_add = """
