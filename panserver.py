@@ -208,6 +208,7 @@ style_basic = """
             width: 92%; max-width: 45em;  margin: auto;
             font-size: 1.2rem; line-height: 1.5}
         code { font-family: "DejaVu Sans Mono", Consolas, monospace; }
+        pre { overflow: auto; }
         .LaTeX { font-size: 1.2em; }
         div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
         ul li { list-style-type: disc; }
