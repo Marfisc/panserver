@@ -20,7 +20,7 @@ Now open `http://localhost:8080/` in a browser (which is done automatically if y
 Command line (given `python` is Python 3):
 
 ```
-python panserver.py [-a] [-b] [-p port] [path]
+python panserver.py [-a] [-b] [-r] [-p port] [path]
 ```
 
 This starts a local http server. The Markdown conversion utility [`pandoc`](http://pandoc.org/) must installed and available on the path.
@@ -42,6 +42,10 @@ Specifying this option makes Panserver include a small script into the generated
 
 If you specify this option, Panserver will open its index page in your standard web browser.
 
+### Allow remote connections: `-r`
+
+Specify this flag if you want to access the server from a different machine.
+
 ### Port: `-p number`
 
 You can set the port Panserver should listen to with this option. The default is `8080`.
@@ -51,7 +55,8 @@ You can set the port Panserver should listen to with this option. The default is
 When you start Panserver it will act as an HTTP server (on the given port).
 On the same machine it will be available in a web browser as `http://localhost:8080/` (substitute `8080` with correct port if you specified it explicitly).
 
-**Beware** that access is not restricted to the same machine!
+**Beware** that access is not necessarily restricted to the same machine!
+Unless `-r` is specified, Panserver will try restrict itself to local connections but there is no guarantee.
 All files (not only Markdown documents) in the document directory and all its subdirectories will be available through the server to whomever has access to the port on that machine!
 
 ### Index page

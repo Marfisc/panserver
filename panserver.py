@@ -238,6 +238,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', action='store_const', const=True)
     parser.add_argument('-p', '--port', type=int, default=8080)
     parser.add_argument('-b', action='store_const', const=True)
+    parser.add_argument('-r', action='store_const', const=True)
     parser.add_argument('path', nargs='?')
     config = parser.parse_args()
 
@@ -255,6 +256,10 @@ if __name__ == '__main__':
     if config.b:
         webbrowser.get().open('http://localhost:{}/'.format(config.port))
 
-    bottle.run(host='localhost', port=config.port)
+    host = 'localhost'
+    if config.r:
+        host = ''
+
+    bottle.run(host=host, port=config.port)
     shutil.rmtree(outdir)
 
