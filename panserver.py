@@ -130,6 +130,9 @@ def compile_md(name, fmt):
 
         action += ['-m']
 
+        if fmt == 'std':
+            action += ['--toc']
+
         #main parameters
         action += [in_filename, '-o', out_filename]
 
@@ -179,6 +182,7 @@ def create_beforefile():
     beforetext = ""
     beforetext = """
     <span class="topmenu">Panserver: <a href="/">Index</a>
+    <span style="text-decoration: underline; cursor: pointer" onclick="(tocElement = document.getElementById('TOC')).style.display = (tocElement.style.display != 'block') ? 'block' : '';">TOC</span>
     Format:
     <a href="?fmt=export">Export</a>
     <a href="?fmt=simple">Simple</a>
@@ -216,6 +220,7 @@ style_basic = """
 """
 
 style_document_add = """
+        #TOC { display: none; }
         .topmenu { font-size: 1em; color: lightgrey; }
         .topmenu a { color: lightgrey; }
 """
