@@ -128,7 +128,7 @@ def compile_md(name, fmt):
         if fmt != 'inline':
             action += ['-s']
 
-        action += ['-m']
+        action += ['--mathml']
 
         if fmt == 'std':
             action += ['--toc']
