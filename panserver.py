@@ -120,7 +120,7 @@ def compile_md(name, fmt):
         action = ['pandoc']
 
         if fmt == 'std':
-            action += ['-H', headerfile, '-B', beforefile,]
+            action += ['-H', headerfile, '-A', afterfile, '-B', beforefile,]
 
         if fmt == 'export':
             action += ['-H', headerfile_export,]
@@ -142,8 +142,8 @@ def compile_md(name, fmt):
 
 def create_header(autorefresh):
     headertext = ""
-
     headertext += """{}<style type="text/css">{}</style>""".format(meta_no_mobilescale, style_basic + style_document_add)
+    headertext += markdown_css_link
 
     if autorefresh:
         headertext += """
@@ -174,6 +174,7 @@ def create_header(autorefresh):
 
 def create_header_export():
     text = """{}<style type="text/css">{}</style>""".format(meta_no_mobilescale, style_basic)
+    text += markdown_css_link
 
     with open(headerfile_export, 'w') as f:
         f.write(text)
@@ -188,9 +189,14 @@ def create_beforefile():
     <a href="?fmt=simple">Simple</a>
     <a href="?fmt=inline">Inline</a>
     </span>
+    <span class="markdown-body">
     """
     with open(beforefile, 'w') as f:
         f.write(beforetext)
+
+def create_afterfile():
+    with open(afterfile, 'w') as f:
+        f.write("</span>")
 
 #global vars
 tempdir = tempfile.mkdtemp()
@@ -200,6 +206,7 @@ indir = os.path.abspath('.')
 headerfile = os.path.join(tempdir, "header.html")
 headerfile_export = os.path.join(tempdir, "header.export.html")
 beforefile = os.path.join(tempdir, "before.html")
+afterfile = os.path.join(tempdir, "after.html")
 
 if not os.path.exists(outdir):
     os.makedirs(outdir)
@@ -235,6 +242,8 @@ style_index = """
         }
 """
 
+markdown_css_link= """<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.css">"""
+
 if __name__ == '__main__':
     import webbrowser
     import argparse
@@ -251,6 +260,7 @@ if __name__ == '__main__':
     create_header(config.a)
     create_header_export()
     create_beforefile()
+    create_afterfile()
 
     if config.path != None:
         if os.path.isdir(config.path):
