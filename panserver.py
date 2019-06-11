@@ -120,10 +120,13 @@ def compile_md(name, fmt):
         action = ['pandoc']
 
         if fmt == 'std':
-            action += ['-H', headerfile, '-A', afterfile, '-B', beforefile,]
+            action += ['-H', headerfile, '-B', topmenufile,]
 
         if fmt == 'export':
             action += ['-H', headerfile_export,]
+
+        if fmt == 'std' or fmt == 'export':
+            action += ['-B', beforefile, '-A', afterfile,]
 
         if fmt != 'inline':
             action += ['-s']
@@ -179,9 +182,8 @@ def create_header_export():
     with open(headerfile_export, 'w') as f:
         f.write(text)
 
-def create_beforefile():
-    beforetext = ""
-    beforetext = """
+def create_topmenufile():
+    text = """
     <span class="topmenu">Panserver: <a href="/">Index</a>
     <span style="text-decoration: underline; cursor: pointer" onclick="(tocElement = document.getElementById('TOC')).style.display = (tocElement.style.display != 'block') ? 'block' : '';">TOC</span>
     Format:
@@ -189,10 +191,16 @@ def create_beforefile():
     <a href="?fmt=simple">Simple</a>
     <a href="?fmt=inline">Inline</a>
     </span>
+    """
+    with open(topmenufile, 'w') as f:
+        f.write(text)
+
+def create_beforefile():
+    text = """
     <span class="markdown-body">
     """
     with open(beforefile, 'w') as f:
-        f.write(beforetext)
+        f.write(text)
 
 def create_afterfile():
     with open(afterfile, 'w') as f:
@@ -206,6 +214,7 @@ indir = os.path.abspath('.')
 headerfile = os.path.join(tempdir, "header.html")
 headerfile_export = os.path.join(tempdir, "header.export.html")
 beforefile = os.path.join(tempdir, "before.html")
+topmenufile = os.path.join(tempdir, "topmenu.html")
 afterfile = os.path.join(tempdir, "after.html")
 
 if not os.path.exists(outdir):
@@ -259,6 +268,7 @@ if __name__ == '__main__':
 
     create_header(config.a)
     create_header_export()
+    create_topmenufile()
     create_beforefile()
     create_afterfile()
 
