@@ -127,14 +127,12 @@ def compile_md(name, fmt):
 
         if fmt == 'std' or fmt == 'export':
             action += ['-B', beforefile, '-A', afterfile,]
+            action += ['--toc']
 
         if fmt != 'inline':
             action += ['-s']
 
         action += ['--mathml']
-
-        if fmt == 'std':
-            action += ['--toc']
 
         #main parameters
         action += [in_filename, '-o', out_filename]
@@ -185,7 +183,7 @@ def create_header_export():
 def create_topmenufile():
     text = """
     <span class="topmenu">Panserver: <a href="/">Index</a>
-    <span style="text-decoration: underline; cursor: pointer" onclick="(tocElement = document.getElementById('TOC')).style.display = (tocElement.style.display != 'block') ? 'block' : '';">TOC</span>
+    <span style="text-decoration: underline; cursor: pointer" onclick="(tocElement = document.getElementById('TOC')).style.display = (tocElement.style.display != 'block') ? 'block' : 'none';">TOC</span>
     Format:
     <a href="?fmt=export">Export</a>
     <a href="?fmt=simple">Simple</a>
@@ -225,18 +223,26 @@ meta_no_mobilescale = """<meta name="viewport" content="width=device-width, init
 
 style_basic = """
         body {
-            width: 92%; max-width: 45em;  margin: auto;
+            width: 92%; max-width: 40em;  margin: auto;
             font-size: 1.2rem; line-height: 1.5}
         code { font-family: "DejaVu Sans Mono", Consolas, monospace; }
         pre { overflow: auto; }
-        .LaTeX { font-size: 1.2em; }
+        math, .LaTeX { font-size: 1.1em; }
         div.figure .caption {  padding: 0em 1em 1em; font-size: 0.8em; }
         ul li { list-style-type: disc; }
         li p { margin: 0.5em 0; }
+        #TOC { border: 1px solid lightgray; padding: 0.5em; margin-bottom: 1em;}
+        #TOC li { list-style: circle; }
+        @media (min-width: 102em) {
+            body { position: relative; }
+            #TOC { display: block; position: absolute; left: -50%; top: 5em; max-width: 46%; width: 45%; }
+        }
 """
 
 style_document_add = """
-        #TOC { display: none; }
+        @media (max-width: 101em) {
+            #TOC { display: none; }
+        }
         .topmenu { font-size: 1em; color: lightgrey; }
         .topmenu a { color: lightgrey; }
 """
