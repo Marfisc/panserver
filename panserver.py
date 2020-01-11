@@ -69,7 +69,7 @@ def route_generated(name):
 def route_index():
     text = ""
 
-    text += "<html><head>"
+    text += "<html><head><title>Panserver Index</title>"
     text += '<style type="text/css">{}</style>'.format(style_basic + style_index)
     text += "</head><body>"
     text += '<h1>Panserver</h1>'
@@ -151,13 +151,13 @@ def compile_document(name, fmt):
         json_text = json_text.decode('utf-8')
 
         # process json to extract embedded dot diagrams and others
-        json_text = process_embeddings(json_text)
+        json_text = process_document_json(json_text, alternative_title=os.path.basename(name))
 
         # render to HTML
         json_decoding_process = subprocess.Popen(action + ['-f', 'json', '-o', out_filename], stdin=subprocess.PIPE)
         json_decoding_process.communicate(json_text.encode('utf-8'))
 
-def process_embeddings(json_text):
+def process_document_json(json_text, alternative_title):
     changed = False
 
     doc = json.loads(json_text)
@@ -172,6 +172,11 @@ def process_embeddings(json_text):
             elif "plantuml" in block["c"][0][1]:
                 extract_embedding(block, "plantuml")
                 changed = True
+
+    print("meta", doc['meta'])
+    if "title" not in doc["meta"] and "pagetitle" not in doc["meta"]:
+        doc["meta"]["pagetitle"] = {'t': 'MetaInlines', 'c': [{'t': 'Str', 'c': alternative_title}]}
+        changed = True
 
     if changed:
         json_text = json.dumps(doc)
