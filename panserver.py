@@ -8,11 +8,7 @@ import shutil
 import subprocess
 
 def is_known_format(fmt):
-    if fmt == 'std': return True
-    if fmt == 'export': return True
-    if fmt == 'simple': return True
-    if fmt == 'inline': return True
-    return False
+    return fmt in ['std', 'export', 'simple', 'inline']
 
 def get_out_filename(name, fmt = 'std'):
     if not is_known_format(fmt): raise Exception('Unknown format')
@@ -25,21 +21,22 @@ def get_out_filename_rel(name, fmt = 'std'):
     if not is_known_format(fmt): raise Exception('Unknown format')
     return "{}.{}.html".format(name, fmt)
 
-def get_in_filename(name, hasExtesion=False):
-    f = os.path.join(indir, get_in_filename_rel(name, hasExtesion))
+def get_in_filename(name):
+    f = os.path.join(indir, get_in_filename_rel(name))
     if not os.path.abspath(f).startswith(os.path.abspath(indir)):
         raise Exception('Path in problem', os.path.abspath(f), os.path.abspath(indir))
+    if not os.path.exists(f):
+        f += ".md"
     return f
 
-def get_in_filename_rel(name, hasExtesion):
-    if not hasExtesion:
-        return "{}.md".format(name)
+def get_in_filename_rel(name):
     return name
 
-@route('/view/<name:path><end:re:(.md)?>')
-def route_view(name, end):
-    md_file = get_in_filename(name)
-    if end != "" or os.path.exists(md_file):
+@route('/view/<name:path>')
+def route_view(name):
+    infile = get_in_filename(name)
+
+    if os.path.exists(infile):
         fmt = bottle.request.query.fmt or "std"
         if not is_known_format(fmt): return 'Unknown format'
 
@@ -47,7 +44,7 @@ def route_view(name, end):
         return bottle.static_file(get_out_filename_rel(name, fmt), outdir)
 
     else:
-        return bottle.static_file(get_in_filename_rel(name, True), indir)
+        return bottle.static_file(get_in_filename_rel(name), indir)
 
 @route('/refresh/<name:path>')
 def route_refresh(name):
@@ -134,12 +131,11 @@ def compile_md(name, fmt):
 
         action += ['--mathml']
 
-        #main parameters
-        action += [in_filename, '-o', out_filename]
-
-        #compile
+        # compile
         print(action)
-        subprocess.call(action)
+        # create json in intermediate step
+        subprocess.call(action + [in_filename, '-o', out_filename + ".json"])
+        subprocess.call(action + [out_filename + ".json", '-o', out_filename])
 
 def create_header(autorefresh):
     headertext = ""
@@ -152,7 +148,7 @@ def create_header(autorefresh):
     window.setInterval(function() {
         var xhr = new XMLHttpRequest();
         var href = window.location.href;
-        var re = /view\/(.+?)(.md)?$/;
+        var re = /view\/(.+?)$/;
         var name = re.exec(href)[1];
         xhr.open('GET', '/refresh/' + name);
         xhr.onload = function() {
