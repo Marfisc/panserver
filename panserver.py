@@ -27,22 +27,29 @@ def get_in_filename(name):
     f = os.path.join(indir, get_in_filename_rel(name))
     if not os.path.abspath(f).startswith(os.path.abspath(indir)):
         raise Exception('Path in problem', os.path.abspath(f), os.path.abspath(indir))
-    if not os.path.exists(f):
-        f += ".md"
+    for file_ending in [""] + file_endings:
+        if os.path.exists(f + file_ending):
+            return f + file_ending
     return f
 
 def get_in_filename_rel(name):
     return name
 
+def has_compile_file_ending(f):
+    for file_ending in file_endings:
+        if f.endswith(file_ending):
+            return True
+    return False
+
 @route('/view/<name:path>')
 def route_view(name):
     infile = get_in_filename(name)
 
-    if os.path.exists(infile):
+    if os.path.exists(infile) and has_compile_file_ending(infile):
         fmt = bottle.request.query.fmt or "std"
         if not is_known_format(fmt): return 'Unknown format'
 
-        compile_md(name, fmt)
+        compile_document(name, fmt)
         return bottle.static_file(get_out_filename_rel(name, fmt), outdir)
 
     else:
@@ -60,8 +67,6 @@ def route_generated(name):
 
 @route('/')
 def route_index():
-    import glob
-
     text = ""
 
     text += "<html><head>"
@@ -74,14 +79,16 @@ def route_index():
         #collect markdown files recursively into a list
         #return '' if no markdown file is in the directory
         dirtext = ''
-        for path in sorted(glob.iglob(os.path.join(dirname, '*.md'))):
+        for name in sorted(os.listdir(os.path.join('.', dirname))):
+            path = os.path.join(dirname, name)
             if os.path.isdir(path): continue
+            if not has_compile_file_ending(path): continue
             d = {}
-            d['path'] = path[:-3]
             d['name'] = os.path.basename(path)
+            d['path'] = path
             dirtext += '<li class="file-entry"><a href="/view/{path}">{name}</a></li>'.format(**d)
 
-        for path in sorted(glob.iglob(os.path.join(dirname, '*'))):
+        for path in sorted(os.listdir(os.path.join('.', dirname))):
             if not os.path.isdir(path): continue
             subdirtext = dir_entry(path)
             #ignore directories with empty listings
@@ -108,7 +115,7 @@ def needs_update(name, fmt = 'std'):
     if not os.path.exists(out_filename): return True
     return os.path.getmtime(out_filename) < os.path.getmtime(in_filename)
 
-def compile_md(name, fmt):
+def compile_document(name, fmt):
     out_filename = get_out_filename(name, fmt)
     in_filename = get_in_filename(name)
     if needs_update(name, fmt):
@@ -268,6 +275,7 @@ def create_afterfile():
         f.write("</span>")
 
 #global vars
+file_endings = [".md", ".markdown", ".rst"]
 tempdir = tempfile.mkdtemp()
 outdir = os.path.join(tempdir, "out")
 indir = os.path.abspath('.')
