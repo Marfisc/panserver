@@ -6,6 +6,8 @@ import tempfile
 import os
 import shutil
 import subprocess
+import json
+import hashlib
 
 def is_known_format(fmt):
     return fmt in ['std', 'export', 'simple', 'inline']
@@ -52,6 +54,9 @@ def route_refresh(name):
         return "True"
     return "False"
 
+@route('/generated/<name:path>')
+def route_generated(name):
+    return bottle.static_file(name, os.path.join(tempdir, "generated"))
 
 @route('/')
 def route_index():
@@ -132,10 +137,74 @@ def compile_md(name, fmt):
         action += ['--mathml']
 
         # compile
-        print(action)
+        #print(action)
         # create json in intermediate step
-        subprocess.call(action + [in_filename, '-o', out_filename + ".json"])
-        subprocess.call(action + [out_filename + ".json", '-o', out_filename])
+        json_encoding_process = subprocess.Popen(action + ['-t', 'json', in_filename], stdout=subprocess.PIPE)
+        json_text, _ = json_encoding_process.communicate()
+        json_text = json_text.decode('utf-8')
+        print(json_text)
+
+        # process json to extract embedded dot diagrams and others
+        json_text = process_embeddings(json_text)
+
+        # render to HTML
+        json_decoding_process = subprocess.Popen(action + ['-f', 'json', '-o', out_filename], stdin=subprocess.PIPE)
+        json_decoding_process.communicate(json_text.encode('utf-8'))
+
+def process_embeddings(json_text):
+    changed = False
+
+    doc = json.loads(json_text)
+    print(doc)
+
+    # TODO descent recursively into json doc
+
+    for block in doc["blocks"]:
+        if block["t"] == "CodeBlock":
+            if "dot" in block["c"][0][1]:
+                extract_embedding(block, "dot")
+                changed = True
+            elif "plantuml" in block["c"][0][1]:
+                extract_embedding(block, "plantuml")
+                changed = True
+
+    if changed:
+        json_text = json.dumps(doc)
+    return json_text
+
+def extract_embedding(block, embedding_type):
+    code = block["c"][1]
+    md5 = hashlib.md5(code.encode('utf-8')).hexdigest()
+    generation_dir = os.path.join(tempdir, "generated")
+    error = None
+    if not os.path.exists(generation_dir):
+        os.makedirs(generation_dir)
+    target = os.path.join(generation_dir, "{}.{}.png".format(md5, embedding_type))
+    if not os.path.exists(target):
+        if embedding_type == "dot":
+            process = subprocess.Popen(["dot", "-Tpng"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        elif embedding_type == "plantuml":
+            process = subprocess.Popen(["plantuml", "-pipe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process_out, process_err = process.communicate(code.encode('utf-8'))
+        error_code = process.wait()
+        if error_code != 0:
+            error = process_err.decode('utf-8')
+        else:
+            with open(target, "wb") as f:
+                f.write(process_out)
+
+    if error is None:
+        # Replace embedding in block with image
+        block["t"] = "Para"
+        block["c"] = [ { "t" : "Image", "c" : [
+            ["", [], []],
+            [],
+            [ "/generated/{}.{}.png".format(md5, embedding_type), "fig:"]
+            ]}]
+    else:
+        # Insert error
+        block["c"][0][1] = []
+        block["c"][1] = error
 
 def create_header(autorefresh):
     headertext = ""
