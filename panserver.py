@@ -70,7 +70,7 @@ def route_index():
     text += '<h1>Panserver</h1>'
     text += 'Serving Markdown documents rendered using <a href="http://pandoc.org/">pandoc</a>. By <a href="http://marcelfischer.eu/">Marcel Fischer</a>'
 
-    def dir_entry(dirname):
+    def dir_entry(dirname, toplevel = False):
         #collect markdown files recursively into a list
         #return '' if no markdown file is in the directory
         dirtext = ''
@@ -90,12 +90,12 @@ def route_index():
 
         if dirtext != '':
             dirtext = '<ul class="file-listing">' + dirtext + '</ul>'
-        else:
+        elif toplevel:
             dirtext = '<i> (no documents)</i>'
         return dirtext
 
     text += "<h3>Directory contents</h3>"
-    text += dir_entry('')
+    text += dir_entry('', toplevel=True)
 
     text += '</body></html>'
 
@@ -142,7 +142,6 @@ def compile_md(name, fmt):
         json_encoding_process = subprocess.Popen(action + ['-t', 'json', in_filename], stdout=subprocess.PIPE)
         json_text, _ = json_encoding_process.communicate()
         json_text = json_text.decode('utf-8')
-        print(json_text)
 
         # process json to extract embedded dot diagrams and others
         json_text = process_embeddings(json_text)
@@ -155,7 +154,6 @@ def process_embeddings(json_text):
     changed = False
 
     doc = json.loads(json_text)
-    print(doc)
 
     # TODO descent recursively into json doc
 
