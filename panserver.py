@@ -310,7 +310,7 @@ meta_no_mobilescale = """<meta name="viewport" content="width=device-width, init
 style_basic = """
         body {
             width: 92%; max-width: 40em;  margin: auto;
-            font-size: 1.2rem; line-height: 1.5}
+            font-size: 1.2rem; line-height: 1.5; padding-bottom: 3em;}
         code { font-family: "DejaVu Sans Mono", Consolas, monospace; }
         pre { overflow: auto; }
         math, .LaTeX { font-size: 1.1em; }
