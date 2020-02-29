@@ -3,6 +3,13 @@
 Panserver is a very simple HTTP server written in Python 3 to view rendered [Markdown](https://en.wikipedia.org/wiki/Markdown) documents.
 It is not intended to be used as web-facing server. Instead it is a helper to view Markdown locally. For rendering [`pandoc`](http://pandoc.org/) is employed, which must be installed. The Python library [bottle](https://bottlepy.org/docs/dev/) must be installed as well.
 
+Features include:
+
+- table of contents
+- automatic refresh
+- inline math
+- rendering of inline `dot` and `plantuml` diagrams
+
 ## Quick Start
 
 Run the command
@@ -76,6 +83,28 @@ the menu and auto-refresh script.
 * *simple*: Remove the default styling and the menu.
 * *inline*: Remove the default styling, the menu, and the HTML skeleton
 around the output. This is for inclusion into existing HTML documents.
+
+The default format features a table of contents (floating on the left on large enough displays). It can be toggled via the top menu. Clicking a links jumps to the corresponding part of the document.
+
+### Integrated diagram processing
+
+A markdown document can contain integrated diagrams. These are markdown code sections annotated with the corresponding tool name. Panserver extracts the code sections, processes the code with the given tool (which must be installed and on the path). Then the generated image in inserted in place of the code. So markdown that looks like this:
+
+    ``` dot
+    digraph {
+        rankdir=LR;
+        A -> B;
+    }
+    ```
+
+is converted inline into this:
+
+![](img/dot.png)
+
+Current supported tools are:
+
+- [`dot`](https://graphviz.org/): Graphviz graph diagrams
+- [`plantuml`](https://plantuml.com/): variety of UML diagrams
 
 ### Other files
 
