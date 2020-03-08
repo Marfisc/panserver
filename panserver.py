@@ -79,6 +79,7 @@ def route_index():
         #collect markdown files recursively into a list
         #return '' if no markdown file is in the directory
         dirtext = ''
+        print("dirname ", dirname)
         for name in sorted(os.listdir(os.path.join('.', dirname))):
             path = os.path.join(dirname, name)
             if os.path.isdir(path): continue
@@ -88,7 +89,8 @@ def route_index():
             d['path'] = path
             dirtext += '<li class="file-entry"><a href="/view/{path}">{name}</a></li>'.format(**d)
 
-        for path in sorted(os.listdir(os.path.join('.', dirname))):
+        for name in sorted(os.listdir(os.path.join('.', dirname))):
+            path = os.path.join(dirname, name)
             if not os.path.isdir(path): continue
             subdirtext = dir_entry(path)
             #ignore directories with empty listings
