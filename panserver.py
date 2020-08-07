@@ -57,9 +57,22 @@ def route_view(name):
 
 @route('/refresh/<name:path>')
 def route_refresh(name):
-    if needs_update(name):
+    time = bottle.request.query.time
+    try:
+        if time is not None:
+            time = int(time)
+    except ValueError:
+        time = None
+
+    if time is not None:
+        result = newer_input_exists(name, time)
+    else:
+        result = needs_update(name)
+
+    if result:
         return "True"
-    return "False"
+    else:
+        return "False"
 
 @route('/generated/<name:path>')
 def route_generated(name):
@@ -116,6 +129,12 @@ def needs_update(name, fmt = 'std'):
     if not os.path.exists(in_filename): return False
     if not os.path.exists(out_filename): return True
     return os.path.getmtime(out_filename) < os.path.getmtime(in_filename)
+
+def newer_input_exists(name, time):
+    """Returns true iff input file 'name' exists and is newer than 'time'"""
+    in_filename = get_in_filename(name)
+    if not os.path.exists(in_filename): return False
+    return time < os.path.getmtime(in_filename)
 
 def compile_document(name, fmt):
     out_filename = get_out_filename(name, fmt)
@@ -241,7 +260,7 @@ def create_header(autorefresh):
         var href = window.location.href;
         var re = /view\/(.+?)$/;
         var name = re.exec(href)[1];
-        xhr.open('GET', '/refresh/' + name);
+        xhr.open('GET', '/refresh/' + name + "?time=" + Math.ceil(window.performance.timing.connectStart / 1000));
         xhr.onload = function() {
             if (xhr.status === 200) {
                 if(xhr.responseText == 'True') {
