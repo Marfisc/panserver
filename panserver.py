@@ -366,7 +366,7 @@ style_index = """
 
 markdown_css_link= """<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.css">"""
 
-if __name__ == '__main__':
+def main():
     import webbrowser
     import argparse
 
@@ -388,6 +388,7 @@ if __name__ == '__main__':
     if config.path != None:
         if os.path.isdir(config.path):
             os.chdir(config.path)
+            global indir
             indir = os.path.abspath('.')
         else:
             raise Exception('Unknown path argument')
@@ -402,3 +403,5 @@ if __name__ == '__main__':
     bottle.run(host=host, port=config.port)
     shutil.rmtree(outdir)
 
+if __name__ == '__main__':
+    main()
