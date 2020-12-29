@@ -256,6 +256,9 @@ def create_header(autorefresh):
         headertext += """
     <script>
     window.setInterval(function() {
+        if (document.visibilityState === 'hidden') {
+            return;
+        }
         var xhr = new XMLHttpRequest();
         var href = window.location.href;
         var re = /view\/(.+?)$/;
