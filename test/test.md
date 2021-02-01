@@ -3,7 +3,7 @@
 ## This is a title
 
 Text with paragraphs.
-Each seperated by an empty line.
+Each separated by an empty line.
 
 *Italics* and **bold**.
 Also `monospace`.
@@ -68,3 +68,12 @@ select *
 from table
 where a < b
 ```
+
+## Embedding
+
+```dot
+digraph {
+    A -> B;
+}
+```
+
