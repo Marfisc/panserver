@@ -166,7 +166,7 @@ class DocumentCompiler:
                 action += ['--toc']
 
         # compile
-        print(action)
+        #print(action)
         # create json in intermediate step
         json_encoding_process = subprocess.Popen(action + ['-t', 'json', file_provider.get_in_filename(name)], stdout=subprocess.PIPE)
         json_text, _ = json_encoding_process.communicate()
@@ -180,7 +180,7 @@ class DocumentCompiler:
         json_decoding_process.communicate(json_text.encode('utf-8'))
 
     def process_document_json(self, json_text, alternative_title):
-        math_option = ['--mathjax']
+        math_option = ['--mathjax=https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_HTMLorMML']
         changed = False
 
         doc = json.loads(json_text)
@@ -211,7 +211,7 @@ class DocumentCompiler:
             if meta_math == "mathml":
                 math_option = ['--mathml']
             elif meta_math == "mathjax":
-                math_option = ['--mathjax']
+                math_option = ['--mathjax=https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_HTMLorMML']
             elif meta_math == "none":
                 math_option = []
 
@@ -314,8 +314,9 @@ def route_index():
     def dir_entry(dirname, toplevel = False):
         #collect markdown files recursively into a list
         #return '' if no markdown file is in the directory
+        if dirname == '.git':
+            return ''
         dirtext = ''
-        print("dirname ", dirname)
         for name in sorted(os.listdir(os.path.join('.', dirname))):
             path = os.path.join(dirname, name)
             if os.path.isdir(path): continue
@@ -442,7 +443,6 @@ def main():
 
     bottle.run(host=host, port=config.port)
 
-    shutil.rmtree(file_provider.tempdir)
     shutil.rmtree(embedding_processor.tempdir)
     for compiler in doument_compilers.values():
         shutil.rmtree(compiler.tempdir)
