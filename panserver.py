@@ -307,10 +307,10 @@ def route_index():
 
     text += "<html><head><title>Panserver Index</title>"
     text += '<style type="text/css">{}</style>'.format(style_basic + style_index)
+    text += markdown_css_link
     text += "</head><body class='markdown-body' style='max-width: 600px; margin: auto; margin-top: 80px; padding: 80px;'>"
     text += '<h1>Panserver</h1>'
     text += 'Serving Markdown documents rendered using <a href="http://pandoc.org/">pandoc</a>. By <a href="http://marcelfischer.eu/">Marcel Fischer</a>'
-    text += markdown_css_link
 
     def dir_entry(dirname, toplevel = False):
         #collect markdown files recursively into a list
