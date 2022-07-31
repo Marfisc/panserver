@@ -84,7 +84,7 @@ class DocumentCompiler:
                 return;
             }
             var xhr = new XMLHttpRequest();
-            var href = window.location.href;
+            var href = window.location.pathname;
             var re = /view\/(.+?)$/;
             var name = re.exec(href)[1];
             xhr.open('GET', '/refresh/' + name + "?time=" + Math.ceil(window.performance.timing.connectStart / 1000));
